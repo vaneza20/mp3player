@@ -8,20 +8,27 @@ function Player({ song }) {
     const [currentIndex, setCurrentIndex] = useState(0)
     const music = useRef()
     const key = "ZTVhYTU3MWEtZjRhNy00MmRmLWJiZDAtNjQwNTAwN2E0ODhi"
-
+    const [musica, setTest] = useState()
+    const [images, setImages] = useState()
     useEffect(() => {
+        getImagem()
         getMusics()
     }, [])
-
+   
     useEffect(() => {
         console.log(tracks)
     }, [tracks])
 
     const getMusics = async () => {
-        let musics = await napster.get(`top?apikey=${key}`).then(r => r)
+        let musics = await napster.get(`albums/alb.686528398/tracks?apikey=${key}`)
+        setTest(musics.data.tracks[0])
         setTracks(musics.data.tracks)
     }
 
+    const getImagem = async () => {
+        let image = await napster.get(`albums/alb.686528398/images?apikey=${key}`)
+        setImages(image.data.images)
+    }
     const loadSong = url => {
         music.current.src = url
         play()
@@ -48,12 +55,15 @@ function Player({ song }) {
 
     return (
         <div>
+            <img src={images ? images[0]?.url : ""} alt="" />
             {isPlaying ? (
-                <h2>Está tocando a música: {song?.name}</h2>
+                <h2>Está tocando a música: {musica?.name} <br/>
+                Album: {musica?.albumName}
+                </h2>
             ) : (
                 <h2>A música está parada</h2>
             )}
-            <audio ref={music} src={song?.url || "https://listen.hs.llnwd.net/g2/prvw/4/2/4/9/8/911189424.mp3"} ></audio>
+            <audio ref={music} src={musica?.previewURL} ></audio>
             <button>Anterior</button>
             <button onClick={ isPlaying ? pause : play}>
                 { isPlaying ? "pause" : "play"}
